@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER | The Art of Minimalist Living</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;600;800&family=Playfair+Display:ital,wght@0,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a0a0a;
+            --accent: #d4d4d8;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--primary);
+            color: #fff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* 全域雜訊紋理 */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* 垂直參考線 */
+        .grid-guide {
+            position: fixed;
+            top: 0; left: 10%; width: 1px; height: 100%;
+            background: var(--border);
+            z-index: -1;
+        }
+        .grid-guide-right {
+            position: fixed;
+            top: 0; right: 10%; width: 1px; height: 100%;
+            background: var(--border);
+            z-index: -1;
+        }
+
+        /* 自訂游標 */
+        #custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+
+        /* 手電筒光暈 */
+        .flashlight {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,0.05) 0%, transparent 40%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 磨砂玻璃 */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+        }
+
+        /* 無限跑馬燈 */
+        .marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            display: flex;
+        }
+        .marquee-content {
+            display: flex;
+            animation: marquee 30s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Sonar 脈衝 */
+        .sonar-btn {
+            position: relative;
+        }
+        .sonar-pulse {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%; height: 100%;
+            border-radius: inherit;
+            border: 1px solid rgba(255,255,255,0.5);
+            animation: sonar 2s infinite;
+        }
+        @keyframes sonar {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+        }
+
+        .text-clip {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        }
+
+        /* 響應式調整 */
+        @media (max-width: 768px) {
+            .grid-guide, .grid-guide-right { display: none; }
+            #custom-cursor { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="flashlight" id="flashlight"></div>
+    <div id="custom-cursor"></div>
+    <div class="grid-guide"></div>
+    <div class="grid-guide-right"></div>
+
+    <!-- 導覽列 -->
+    <nav class="fixed top-0 w-full z-50 px-6 py-8 md:px-20 flex justify-between items-center mix-blend-difference">
+        <div class="text-2xl font-extrabold tracking-tighter uppercase">Aether</div>
+        <div class="hidden md:flex gap-12 text-sm uppercase tracking-widest font-light">
+            <a href="#" class="hover:opacity-50 transition">Collections</a>
+            <a href="#" class="hover:opacity-50 transition">Philosophy</a>
+            <a href="#" class="hover:opacity-50 transition">Atelier</a>
+        </div>
+        <button class="sonar-btn px-6 py-2 bg-white text-black text-xs font-bold uppercase rounded-full tracking-widest overflow-hidden">
+            Contact
+            <div class="sonar-pulse"></div>
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div class="container mx-auto px-6 z-10">
+            <div class="text-center">
+                <span class="inline-block mb-4 text-xs tracking-[0.4em] uppercase text-zinc-500 reveal-text">Since 2024 — Future of Living</span>
+                <h1 class="text-6xl md:text-[9vw] font-bold leading-none tracking-tighter text-clip uppercase" id="hero-title">
+                    Timeless<br><span class="italic font-serif text-zinc-600">Silence.</span>
+                </h1>
+                <p class="mt-8 max-w-lg mx-auto text-zinc-400 text-sm md:text-base leading-relaxed font-light reveal-text">
+                    我們致力於將結構的極簡與材質的純粹合而為一。AETHER 不僅是家具，更是空間中流動的詩篇，為尋求精神寧靜的靈魂而生。
+                </p>
+                <div class="mt-12 flex flex-col md:flex-row gap-6 justify-center items-center reveal-text">
+                    <a href="#collection" class="group flex items-center gap-4 text-sm tracking-widest uppercase">
+                        Explore Works 
+                        <span class="w-12 h-[1px] bg-white group-hover:w-20 transition-all duration-500"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 背景大圖視差 -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 opacity-40">
+            <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000" alt="Furniture hero" class="w-full h-full object-cover grayscale" id="hero-img">
+        </div>
+        
+        <!-- 裝飾數字 -->
+        <div class="absolute bottom-10 left-[10%] hidden md:block text-xs font-mono opacity-30">
+            [ COORDINATES: 35.6895° N, 139.6917° E ]
+        </div>
+    </section>
+
+    <!-- 品牌合作跑馬燈 -->
+    <section class="py-20 border-y border-zinc-900 overflow-hidden">
+        <div class="marquee">
+            <div class="marquee-content gap-20 px-10">
+                <div class="flex items-center gap-4 text-zinc-500 uppercase tracking-widest text-sm">
+                    <iconify-icon icon="simple-icons:tesla" width="30"></iconify-icon> INNOVATION PARTNER
+                </div>
+                <div class="flex items-center gap-4 text-zinc-500 uppercase tracking-widest text-sm">
+                    <iconify-icon icon="simple-icons:leica" width="30"></iconify-icon> PRECISION CRAFT
+                </div>
+                <div class="flex items-center gap-4 text-zinc-500 uppercase tracking-widest text-sm">
+                    <iconify-icon icon="simple-icons:hermanmiller" width="30"></iconify-icon> ERGONOMIC DESIGN
+                </div>
+                <div class="flex items-center gap-4 text-zinc-500 uppercase tracking-widest text-sm">
+                    <iconify-icon icon="simple-icons:bangolufsen" width="30"></iconify-icon> ACOUSTIC BALANCE
+                </div>
+                <!-- 重複內容以實現無縫 -->
+                <div class="flex items-center gap-4 text-zinc-500 uppercase tracking-widest text-sm">
+                    <iconify-icon icon="simple-icons:tesla" width="30"></iconify-icon> INNOVATION PARTNER
+                </div>
+                <div class="flex items-center gap-4 text-zinc-500 uppercase tracking-widest text-sm">
+                    <iconify-icon icon="simple-icons:leica" width="30"></iconify-icon> PRECISION CRAFT
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心價值 (Glassmorphism) -->
+    <section class="py-32 px-6">
+        <div class="container mx-auto">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass-card p-10 hover:border-zinc-500 transition-colors duration-700 group">
+                    <div class="text-xs text-zinc-500 mb-8 font-mono">01.</div>
+                    <iconify-icon icon="solar:filters-bold-duotone" width="48" class="text-white mb-6 group-hover:scale-110 transition-transform"></iconify-icon>
+                    <h3 class="text-2xl font-bold mb-4 uppercase">極簡哲學</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">去除所有不必要的裝飾，僅留下機能與光影的對話，讓空間回歸純粹。</p>
+                </div>
+                <div class="glass-card p-10 hover:border-zinc-500 transition-colors duration-700 group mt-12">
+                    <div class="text-xs text-zinc-500 mb-8 font-mono">02.</div>
+                    <iconify-icon icon="solar:crown-minimalistic-bold-duotone" width="48" class="text-white mb-6 group-hover:scale-110 transition-transform"></iconify-icon>
+                    <h3 class="text-2xl font-bold mb-4 uppercase">匠心工藝</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">每一件家具皆由資深工匠耗時數百小時手工打造，選用頂級永續木材與石材。</p>
+                </div>
+                <div class="glass-card p-10 hover:border-zinc-500 transition-colors duration-700 group">
+                    <div class="text-xs text-zinc-500 mb-8 font-mono">03.</div>
+                    <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="48" class="text-white mb-6 group-hover:scale-110 transition-transform"></iconify-icon>
+                    <h3 class="text-2xl font-bold mb-4 uppercase">感官體驗</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">我們關注觸覺的溫度與視覺的韻律，讓家具成為居住者情感的延伸。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 產品展示 (ScrollTrigger) -->
+    <section id="collection" class="py-32 bg-[#0d0d0d]">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+                <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter">Selected<br>Pieces</h2>
+                <div class="text-zinc-500 max-w-xs text-sm uppercase tracking-widest leading-loose">
+                    Curated selection of our most iconic architectural furniture designs.
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-20">
+                <div class="product-item">
+                    <div class="overflow-hidden rounded-3xl aspect-[4/5] relative group">
+                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=1000" alt="Chair" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                            <button class="px-8 py-3 bg-white text-black text-xs font-bold uppercase rounded-full">View Details</button>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex justify-between items-start">
+                        <div>
+                            <h4 class="text-xl font-bold uppercase tracking-tight">Monolith Chair</h4>
+                            <p class="text-zinc-500 text-sm uppercase">Obsidian Series</p>
+                        </div>
+                        <div class="font-mono text-zinc-400">$4,200</div>
+                    </div>
+                </div>
+
+                <div class="product-item md:pt-32">
+                    <div class="overflow-hidden rounded-3xl aspect-[4/5] relative group">
+                        <img src="https://images.unsplash.com/photo-1567016432779-094069958ad5?auto=format&fit=crop&q=80&w=1000" alt="Table" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                            <button class="px-8 py-3 bg-white text-black text-xs font-bold uppercase rounded-full">View Details</button>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex justify-between items-start">
+                        <div>
+                            <h4 class="text-xl font-bold uppercase tracking-tight">Void Coffee Table</h4>
+                            <p class="text-zinc-500 text-sm uppercase">Marble & Glass</p>
+                        </div>
+                        <div class="font-mono text-zinc-400">$8,900</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 px-6 border-t border-zinc-900">
+        <div class="container mx-auto">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+                <div class="col-span-1 lg:col-span-2">
+                    <div class="text-3xl font-extrabold uppercase mb-8">AETHER</div>
+                    <p class="text-zinc-500 max-w-sm mb-8 leading-relaxed">
+                        打造空間的永恆。我們在極簡中發現美，在沉靜中尋得力量。
+                    </p>
+                    <div class="flex gap-6">
+                        <iconify-icon icon="simple-icons:instagram" width="20" class="hover:text-zinc-400 cursor-pointer"></iconify-icon>
+                        <iconify-icon icon="simple-icons:pinterest" width="20" class="hover:text-zinc-400 cursor-pointer"></iconify-icon>
+                        <iconify-icon icon="simple-icons:behance" width="20" class="hover:text-zinc-400 cursor-pointer"></iconify-icon>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="text-xs font-bold uppercase tracking-[0.3em] mb-8 text-zinc-600">Company</h5>
+                    <ul class="flex flex-col gap-4 text-sm text-zinc-400">
+                        <li class="hover:translate-x-2 transition-transform cursor-pointer">About Us</li>
+                        <li class="hover:translate-x-2 transition-transform cursor-pointer">Careers</li>
+                        <li class="hover:translate-x-2 transition-transform cursor-pointer">Journal</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-xs font-bold uppercase tracking-[0.3em] mb-8 text-zinc-600">Newsletter</h5>
+                    <div class="relative">
+                        <input type="email" placeholder="Email Address" class="bg-transparent border-b border-zinc-800 w-full py-2 text-sm focus:outline-none focus:border-white transition-colors">
+                        <button class="absolute right-0 bottom-2">
+                            <iconify-icon icon="solar:arrow-right-linear" width="20"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="text-[10px] text-zinc-700 uppercase tracking-widest flex justify-between">
+                <span>© 2025 AETHER ATELIER. ALL RIGHTS RESERVED.</span>
+                <span class="hidden md:block">EST. BY CREATIVE DIRECTOR G.W.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 初始化 GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 自訂游標邏輯
+        const cursor = document.querySelector('#custom-cursor');
+        const flashlight = document.querySelector('#flashlight');
+        
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, {
+                x: e.clientX,
+                y: e.clientY,
+                duration: 0.1
+            });
+            flashlight.style.setProperty('--x', `${e.clientX}px`);
+            flashlight.style.setProperty('--y', `${e.clientY}px`);
+        });
+
+        // 游標互動效果
+        document.querySelectorAll('a, button, .glass-card').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                gsap.to(cursor, { scale: 3, duration: 0.3 });
+            });
+            el.addEventListener('mouseleave', () => {
+                gsap.to(cursor, { scale: 1, duration: 0.3 });
+            });
+        });
+
+        // Hero 動畫
+        const tl = gsap.timeline();
+        tl.from("#hero-title span", {
+            y: 100,
+            opacity: 0,
+            duration: 1.5,
+            ease: "expo.out",
+            stagger: 0.2
+        })
+        .from(".reveal-text", {
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+            stagger: 0.2
+        }, "-=1")
+        .from("#hero-img", {
+            scale: 1.2,
+            duration: 2.5,
+            ease: "power2.out"
+        }, 0);
+
+        // 滾動觸發動畫
+        gsap.utils.toArray('.glass-card').forEach(card => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 90%",
+                },
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                ease: "power3.out"
+            });
+        });
+
+        gsap.utils.toArray('.product-item').forEach(item => {
+            gsap.from(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top 80%",
+                },
+                y: 100,
+                opacity: 0,
+                duration: 1.5,
+                ease: "expo.out"
+            });
+        });
+
+        // 垂直文字剪裁滑動 (範例應用在標題)
+        gsap.to("#hero-title", {
+            scrollTrigger: {
+                trigger: "body",
+                start: "top top",
+                end: "bottom top",
+                scrub: true
+            },
+            y: -200,
+            opacity: 0.3
+        });
+
+    </script>
+</body>
+</html>
